@@ -42,7 +42,7 @@ proto/             # Shared gRPC .proto files
 ### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/your-username/micromaestro.git
+git clone https://github.com/aymenloudiy/micromaestro.git
 cd micromaestro
 ```
 
