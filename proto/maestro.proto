@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package maestro;
+
+service Maestro {
+  rpc GetInventory(Empty) returns (InventoryList);
+  rpc UpdateInventory(UpdateRequest) returns (Status);
+  rpc EvaluateRules(Empty) returns (TriggeredActions);
+}
+
+message Empty {}
+
+message InventoryItem {
+  string sku = 1;
+  string name = 2;
+  int32 quantity = 3;
+  int32 threshold = 4;
+  int32 lead_time_days = 5;
+}
+
+message InventoryList {
+  repeated InventoryItem items = 1;
+}
+
+message UpdateRequest {
+  repeated InventoryItem updates = 1;
+}
+
+message TriggeredAction {
+  string sku = 1;
+  string action = 2;
+  string reason = 3;
+}
+
+message TriggeredActions {
+  repeated TriggeredAction actions = 1;
+}
+
+message Status {
+  bool ok = 1;
+  string message = 2;
+}
