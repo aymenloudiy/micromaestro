@@ -1,2 +1,4 @@
 bin/
 *.log
+/googleapis/
+/backend/maestropb/
