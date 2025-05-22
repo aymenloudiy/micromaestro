@@ -1,4 +1,4 @@
-module github.com/aymenloudiy/micromaestro
+module github.com/aymenloudiy/micromaestro/backend
 
 go 1.23.1
 
