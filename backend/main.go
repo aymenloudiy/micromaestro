@@ -15,18 +15,30 @@ import (
 type server struct {
 	maestropb.UnimplementedMaestroServer
 }
+var inventory = []*maestropb.InventoryItem{
+    {Sku: "A123", Name: "Widget", Quantity: 50, Threshold: 10, LeadTimeDays: 3},
+}
 
 func (s *server) GetInventory(ctx context.Context, req *maestropb.Empty) (*maestropb.InventoryList, error) {
-	return &maestropb.InventoryList{
-		Items: []*maestropb.InventoryItem{
-			{Sku: "A123", Name: "Widget", Quantity: 50, Threshold: 10, LeadTimeDays: 3},
-		},
-	}, nil
+    return &maestropb.InventoryList{Items: inventory}, nil
 }
 
+
 func (s *server) UpdateInventory(ctx context.Context, req *maestropb.UpdateRequest) (*maestropb.Status, error) {
-	return &maestropb.Status{Ok: true, Message: "Inventory updated"}, nil
+    for _, update := range req.Updates {
+        for _, item := range inventory {
+            if item.Sku == update.Sku {
+                item.Quantity = update.Quantity
+                item.Threshold = update.Threshold
+                item.LeadTimeDays = update.LeadTimeDays
+                item.Name = update.Name
+            }
+        }
+    }
+
+    return &maestropb.Status{Ok: true, Message: "Inventory updated"}, nil
 }
+
 
 func (s *server) EvaluateRules(ctx context.Context, req *maestropb.Empty) (*maestropb.TriggeredActions, error) {
 	return &maestropb.TriggeredActions{
