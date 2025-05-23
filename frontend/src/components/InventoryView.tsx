@@ -19,6 +19,7 @@ export default function InventoryView() {
           </li>
         ))}
       </ul>
+      <button onClick={() => getInventory().then(setItems)}>Refresh</button>
     </div>
   );
 }
