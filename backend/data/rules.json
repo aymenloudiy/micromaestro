@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Low Stock Reorder",
+    "condition": "quantity < threshold",
+    "action": "Reorder",
+    "reason": "Quantity is below threshold",
+    "priority": 1
+  },
+  {
+    "name": "High Lead Time Alert",
+    "condition": "leadTimeDays >= 14",
+    "action": "Raise priority",
+    "reason": "Lead time is 14+ days",
+    "priority": 2
+  }
+]
