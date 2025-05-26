@@ -49,6 +49,9 @@ func (s *server) EvaluateRules(ctx context.Context, req *maestropb.Empty) (*maes
 
 
 func main() {
+	if err := orchestrator.LoadRules("data/rules.json"); err != nil {
+    log.Fatalf("Failed to load rules: %v", err)
+	}
 	go runGRPC()
 	runGateway()
 }
