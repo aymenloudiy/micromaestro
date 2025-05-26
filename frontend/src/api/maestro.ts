@@ -28,3 +28,12 @@ export async function evaluateRules(): Promise<TriggeredActions> {
   const res = await fetch(`${BASE_URL}/rules/evaluate`);
   return await res.json();
 }
+export async function evaluateScenario(scenario: { items: InventoryItem[] }) {
+  const res = await fetch(`${BASE_URL}/rules/evaluate-scenario`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(scenario),
+  });
+
+  return await res.json();
+}
