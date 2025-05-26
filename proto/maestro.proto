@@ -23,6 +23,13 @@ service Maestro {
       get: "/v1/rules/evaluate"
     };
   }
+  rpc EvaluateScenario (InventoryList) returns (TriggeredActions) {
+  option (google.api.http) = {
+    post: "/v1/rules/evaluate-scenario"
+    body: "*"
+  };
+}
+
 }
 
 message Empty {}
