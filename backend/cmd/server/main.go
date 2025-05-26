@@ -46,6 +46,10 @@ func (s *server) EvaluateRules(ctx context.Context, req *maestropb.Empty) (*maes
     return &maestropb.TriggeredActions{Actions: actions}, nil
 }
 
+func (s *server) EvaluateScenario(ctx context.Context, req *maestropb.InventoryList) (*maestropb.TriggeredActions, error) {
+    actions := orchestrator.Evaluate(req.Items)
+    return &maestropb.TriggeredActions{Actions: actions}, nil
+}
 
 
 func main() {
