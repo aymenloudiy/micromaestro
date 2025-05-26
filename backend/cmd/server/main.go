@@ -2,13 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
 
+	"github.com/aymenloudiy/micromaestro/backend/internal/orchestrator"
 	"github.com/aymenloudiy/micromaestro/backend/maestropb"
-
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 )
@@ -41,22 +40,12 @@ func (s *server) UpdateInventory(ctx context.Context, req *maestropb.UpdateReque
 }
 
 //TODO: Implement Business logic, maybe make it auto trigger too
-func (s *server) EvaluateRules(ctx context.Context, req *maestropb.Empty) (*maestropb.TriggeredActions, error) {
-    var actions []*maestropb.TriggeredAction
-
-    for _, item := range inventory {
-        if item.Quantity < item.Threshold {
-            actions = append(actions, &maestropb.TriggeredAction{
-                Sku:    item.Sku,
-                Action: "Reorder",
-                Reason: fmt.Sprintf("Quantity %d is below threshold %d", item.Quantity, item.Threshold),
-            })
-        }
 //TODO: Maybe more rules here later, might need to separate them to diff functions
-    }
-
+func (s *server) EvaluateRules(ctx context.Context, req *maestropb.Empty) (*maestropb.TriggeredActions, error) {
+    actions := orchestrator.Evaluate(inventory)
     return &maestropb.TriggeredActions{Actions: actions}, nil
 }
+
 
 
 func main() {
