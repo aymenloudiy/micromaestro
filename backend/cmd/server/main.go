@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"github.com/aymenloudiy/micromaestro/backend/maestropb"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type server struct {
@@ -42,13 +44,17 @@ func (s *server) UpdateInventory(ctx context.Context, req *maestropb.UpdateReque
 //TODO: Implement Business logic, maybe make it auto trigger too
 //TODO: Maybe more rules here later, might need to separate them to diff functions
 func (s *server) EvaluateRules(ctx context.Context, req *maestropb.Empty) (*maestropb.TriggeredActions, error) {
-    actions := orchestrator.Evaluate(inventory)
-    return &maestropb.TriggeredActions{Actions: actions}, nil
+actions := orchestrator.Evaluate(inventory)
+orchestrator.AddLog("EvaluateRules", actions)
+return &maestropb.TriggeredActions{Actions: actions}, nil
+
 }
 
 func (s *server) EvaluateScenario(ctx context.Context, req *maestropb.InventoryList) (*maestropb.TriggeredActions, error) {
-    actions := orchestrator.Evaluate(req.Items)
-    return &maestropb.TriggeredActions{Actions: actions}, nil
+actions := orchestrator.Evaluate(req.Items)
+orchestrator.AddLog("EvaluateScenario", actions)
+return &maestropb.TriggeredActions{Actions: actions}, nil
+
 }
 
 
@@ -75,22 +81,40 @@ func runGRPC() {
 	}
 }
 
+
+
 func runGateway() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	mux := runtime.NewServeMux()
+	gwMux := runtime.NewServeMux()
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
 
-	opts := []grpc.DialOption{grpc.WithInsecure()}
-
-	err := maestropb.RegisterMaestroHandlerFromEndpoint(ctx, mux, "localhost:50051", opts)
+	err := maestropb.RegisterMaestroHandlerFromEndpoint(ctx, gwMux, "localhost:50051", opts)
 	if err != nil {
 		log.Fatalf("failed to register gRPC-gateway: %v", err)
 	}
 
+	httpMux := http.NewServeMux()
+
+	httpMux.Handle("/", gwMux)
+
+	httpMux.HandleFunc("/v1/actions/history", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		logs := orchestrator.GetLogs()
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(logs)
+	})
+
 	log.Println("REST gateway listening on :8080")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := http.ListenAndServe(":8080", httpMux); err != nil {
 		log.Fatalf("failed to serve HTTP: %v", err)
 	}
 }
+
