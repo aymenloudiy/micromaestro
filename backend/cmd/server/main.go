@@ -18,7 +18,7 @@ type server struct {
 	maestropb.UnimplementedMaestroServer
 }
 var inventory = []*maestropb.InventoryItem{
-    {Sku: "A123", Name: "Widget", Quantity: 50, Threshold: 10, LeadTimeDays: 3},
+    {Sku: "A123", Name: "Widget", Quantity: 1, Threshold: 10, LeadTimeDays: 3},
 }
 
 func (s *server) GetInventory(ctx context.Context, req *maestropb.Empty) (*maestropb.InventoryList, error) {
@@ -117,4 +117,5 @@ func runGateway() {
 		log.Fatalf("failed to serve HTTP: %v", err)
 	}
 }
+
 

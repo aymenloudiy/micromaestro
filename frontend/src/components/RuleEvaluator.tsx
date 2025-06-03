@@ -9,12 +9,15 @@ export default function RuleEvaluator() {
 
   const handleEvaluate = async () => {
     try {
+      console.log("Evaluate button clicked");
       setLoading(true);
       setError("");
       const response = await evaluateRules();
+      console.log("Response:", response);
       setResults(response.actions);
+      console.log(response.actions);
     } catch (err) {
-      console.error(err);
+      console.error("Evaluate failed", err);
       setError("Failed to evaluate rules.");
     } finally {
       setLoading(false);
