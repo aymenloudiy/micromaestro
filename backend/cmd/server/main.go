@@ -88,21 +88,18 @@ func runGateway() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	gwMux := runtime.NewServeMux()
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	}
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
-	err := maestropb.RegisterMaestroHandlerFromEndpoint(ctx, gwMux, "localhost:50051", opts)
+	err := maestropb.RegisterMaestroHandlerFromEndpoint(ctx, mux, "localhost:50051", opts)
 	if err != nil {
 		log.Fatalf("failed to register gRPC-gateway: %v", err)
 	}
 
-	httpMux := http.NewServeMux()
+	muxWithExtra := http.NewServeMux()
+	muxWithExtra.Handle("/", mux)
 
-	httpMux.Handle("/", gwMux)
-
-	httpMux.HandleFunc("/v1/actions/history", func(w http.ResponseWriter, r *http.Request) {
+	muxWithExtra.HandleFunc("/v1/actions/history", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
@@ -113,7 +110,7 @@ func runGateway() {
 	})
 
 	log.Println("REST gateway listening on :8080")
-	if err := http.ListenAndServe(":8080", httpMux); err != nil {
+	if err := http.ListenAndServe(":8080", muxWithExtra); err != nil {
 		log.Fatalf("failed to serve HTTP: %v", err)
 	}
 }
