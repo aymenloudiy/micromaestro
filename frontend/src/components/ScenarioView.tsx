@@ -1,4 +1,3 @@
-// src/components/ScenarioView.tsx
 import { useEffect, useState } from "react";
 import type { InventoryItem, TriggeredAction } from "../types/maestro";
 import { evaluateScenario } from "../api/maestro";
