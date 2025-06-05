@@ -7,6 +7,8 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/aymenloudiy/micromaestro/backend/internal/data"
+	"github.com/aymenloudiy/micromaestro/backend/internal/models"
 	"github.com/aymenloudiy/micromaestro/backend/internal/orchestrator"
 	"github.com/aymenloudiy/micromaestro/backend/maestropb"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -108,6 +110,58 @@ func runGateway() {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(logs)
 	})
+muxWithExtra.HandleFunc("/v1/scenarios", func(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		var scenario models.Scenario
+		if err := json.NewDecoder(r.Body).Decode(&scenario); err != nil {
+			http.Error(w, "invalid JSON", http.StatusBadRequest)
+			return
+		}
+		data.SaveScenario(scenario)
+		w.WriteHeader(http.StatusCreated)
+		return
+	}
+
+	if r.Method == http.MethodGet {
+		scenarios := data.ListScenarios()
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(scenarios)
+		return
+	}
+
+	http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+})
+
+	muxWithExtra.HandleFunc("/v1/scenarios/evaluate", func(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var payload struct {
+		Name string `json:"name"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	scenario, exists := data.GetScenario(payload.Name)
+	if !exists {
+		http.Error(w, "scenario not found", http.StatusNotFound)
+		return
+	}
+
+	actions := orchestrator.Evaluate(scenario.Items)
+	orchestrator.AddLog("EvaluateSavedScenario:"+payload.Name, actions)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"actions":  actions,
+		"scenario": payload.Name,
+	})
+})
 
 	log.Println("REST gateway listening on :8080")
 	if err := http.ListenAndServe(":8080", muxWithExtra); err != nil {
