@@ -42,3 +42,7 @@ export async function getActionHistory() {
   if (!res.ok) throw new Error("Failed to fetch action history");
   return await res.json();
 }
+export async function fetchScenarioLog() {
+  const res = await fetch(`${BASE_URL}/scenario-log`);
+  return await res.json();
+}
