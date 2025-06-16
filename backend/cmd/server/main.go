@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/aymenloudiy/micromaestro/backend/internal/data"
+	"github.com/aymenloudiy/micromaestro/backend/internal/logs"
 	"github.com/aymenloudiy/micromaestro/backend/internal/models"
 	"github.com/aymenloudiy/micromaestro/backend/internal/orchestrator"
 	"github.com/aymenloudiy/micromaestro/backend/maestropb"
@@ -161,6 +162,23 @@ muxWithExtra.HandleFunc("/v1/scenarios", func(w http.ResponseWriter, r *http.Req
 		"actions":  actions,
 		"scenario": payload.Name,
 	})
+})
+	muxWithExtra.HandleFunc("/v1/scenario-log", func(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(logs.GetScenarioLogs())
+	case http.MethodPost:
+		var entry logs.ScenarioLogEntry
+		if err := json.NewDecoder(r.Body).Decode(&entry); err != nil {
+			http.Error(w, "invalid payload", http.StatusBadRequest)
+			return
+		}
+		logs.AddScenarioLog(entry)
+		w.WriteHeader(http.StatusCreated)
+	default:
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+	}
 })
 
 	log.Println("REST gateway listening on :8080")
