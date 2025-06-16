@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { InventoryItem, TriggeredAction } from "../types/maestro";
 import { evaluateScenario } from "../api/maestro";
 import { scenarioPresets } from "../data/scenarioPresets";
@@ -15,8 +15,30 @@ export default function ScenarioManager() {
   const [newItems, setNewItems] = useState<InventoryItem[]>([]);
   const [results, setResults] = useState<TriggeredAction[]>([]);
   const [, setScenarioItems] = useState<InventoryItem[]>([]);
-
   const [error, setError] = useState("");
+  useEffect(() => {
+    const saved = localStorage.getItem("scenarios");
+    if (saved) {
+      try {
+        setScenarios(JSON.parse(saved));
+      } catch {
+        console.warn("Failed to parse saved scenarios");
+      }
+    }
+  }, []);
+  {
+    scenarios.map((s) => (
+      <div key={s.id} style={{ marginBottom: "1rem" }}>
+        <strong>{s.name}</strong>
+        <button onClick={() => handleEvaluate(s.items)}>Evaluate</button>
+        <button onClick={() => deleteScenario(s.id)}>Delete</button>
+      </div>
+    ));
+  }
+
+  useEffect(() => {
+    localStorage.setItem("scenarios", JSON.stringify(scenarios));
+  }, [scenarios]);
 
   const addItem = () => {
     setNewItems([
@@ -81,6 +103,9 @@ export default function ScenarioManager() {
       setScenarioItems(preset.items);
       handleEvaluate(preset.items);
     }
+  };
+  const deleteScenario = (id: number) => {
+    setScenarios((prev) => prev.filter((s) => s.id !== id));
   };
 
   return (
@@ -148,6 +173,7 @@ export default function ScenarioManager() {
           <div key={s.id} style={{ marginBottom: "1rem" }}>
             <strong>{s.name}</strong>
             <button onClick={() => handleEvaluate(s.items)}>Evaluate</button>
+            <button onClick={() => deleteScenario(s.id)}>Delete</button>
           </div>
         ))}
       </section>
