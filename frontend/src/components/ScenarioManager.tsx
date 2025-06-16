@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { InventoryItem, TriggeredAction } from "../types/maestro";
 import { evaluateScenario } from "../api/maestro";
+import { scenarioPresets } from "../data/scenarioPresets";
 
 type Scenario = {
   id: number;
@@ -13,6 +14,8 @@ export default function ScenarioManager() {
   const [newScenarioName, setNewScenarioName] = useState("");
   const [newItems, setNewItems] = useState<InventoryItem[]>([]);
   const [results, setResults] = useState<TriggeredAction[]>([]);
+  const [, setScenarioItems] = useState<InventoryItem[]>([]);
+
   const [error, setError] = useState("");
 
   const addItem = () => {
@@ -69,10 +72,28 @@ export default function ScenarioManager() {
       setError("Failed to evaluate scenario.");
     }
   };
+  const handlePresetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const preset = Object.values(scenarioPresets).find(
+      (p) => p.name === event.target.value
+    );
+
+    if (preset) {
+      setScenarioItems(preset.items);
+      handleEvaluate(preset.items);
+    }
+  };
 
   return (
     <div style={{ padding: "2rem" }}>
       <h2>Scenario Manager</h2>
+      <select onChange={handlePresetChange}>
+        <option value="">Choose a preset</option>
+        {Object.values(scenarioPresets).map((preset) => (
+          <option key={preset.name} value={preset.name}>
+            {preset.name}
+          </option>
+        ))}
+      </select>
 
       <section style={{ marginBottom: "2rem" }}>
         <h3>Create New Scenario</h3>
