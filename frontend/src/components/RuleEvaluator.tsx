@@ -31,7 +31,7 @@ export default function RuleEvaluator() {
         {loading ? "Evaluating..." : "Evaluate Rules"}
       </button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="text-red-600">{error}</p>}
 
       {results.length > 0 && (
         <ul>

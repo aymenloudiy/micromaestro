@@ -83,7 +83,7 @@ export default function ScenarioManager() {
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
+    <div className="p-8">
       <h2>Scenario Manager</h2>
 
       <select onChange={handlePresetChange}>
@@ -95,7 +95,7 @@ export default function ScenarioManager() {
         ))}
       </select>
 
-      <section style={{ marginBottom: "2rem" }}>
+      <section className="mb-8">
         <h3>Create New Scenario</h3>
         <input
           placeholder="Scenario Name"
@@ -103,10 +103,7 @@ export default function ScenarioManager() {
           onChange={(e) => setNewScenarioName(e.target.value)}
         />
         {newItems.map((item, idx) => (
-          <div
-            key={idx}
-            style={{ display: "flex", gap: "1rem", marginBottom: "0.5rem" }}
-          >
+          <div key={idx} className="flex gap-4 mb-2">
             <input
               placeholder="SKU"
               value={item.sku}
@@ -151,15 +148,8 @@ export default function ScenarioManager() {
         <h3>Saved Scenarios</h3>
         {scenarios.length === 0 && <p>No scenarios yet.</p>}
         {scenarios.map((s) => (
-          <div
-            key={s.id}
-            style={{
-              marginBottom: "1rem",
-              border: "1px solid #ccc",
-              padding: "1rem",
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div key={s.id} className="mb-4 border border-gray-300 p-4">
+            <div className="mb-4 border border-gray-300 p-4">
               <strong>{s.name}</strong>
               <div>
                 <button onClick={() => handleEvaluate(s.items)}>
@@ -172,7 +162,7 @@ export default function ScenarioManager() {
             </div>
 
             {expanded[s.id] && (
-              <div style={{ marginTop: "1rem" }}>
+              <div className="mt-4">
                 <h4>Items</h4>
                 <ul>
                   {s.items.map((item, idx) => (
@@ -200,7 +190,7 @@ export default function ScenarioManager() {
         ))}
       </section>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="text-red-600">{error}</p>}
     </div>
   );
 }
