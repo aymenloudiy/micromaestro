@@ -1,20 +1,17 @@
-import "./App.css";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
 import InventoryView from "./components/InventoryView";
-import InventoryEditor from "./components/InventoryEditor";
-import RuleEvaluator from "./components/RuleEvaluator";
-import ScenarioSimulator from "./pages/ScenarioSimulator";
-import ScenarioView from "./components/ScenarioView";
+import ScenarioManager from "./components/ScenarioManager";
+import ActionHistoryView from "./components/ActionHistoryView";
 
-function App() {
+export default function App() {
   return (
-    <>
-      <InventoryView />
-      <InventoryEditor />
-      <RuleEvaluator />
-      <ScenarioSimulator />
-      <ScenarioView />
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Navigate to="/inventory" replace />} />
+        <Route path="/inventory" element={<InventoryView />} />
+        <Route path="/scenarios" element={<ScenarioManager />} />
+        <Route path="/logs" element={<ActionHistoryView />} />
+      </Routes>
+    </Router>
   );
 }
-
-export default App;
