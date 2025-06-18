@@ -35,11 +35,19 @@ export async function evaluateScenario(scenario: { items: InventoryItem[] }) {
     body: JSON.stringify(scenario),
   });
 
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`HTTP ${res.status}: ${errorText}`);
+  }
+
   return await res.json();
 }
+
 export async function getActionHistory() {
   const res = await fetch(`${BASE_URL}/actions/history`);
   if (!res.ok) throw new Error("Failed to fetch action history");
+  console.log(res);
+
   return await res.json();
 }
 export async function fetchScenarioLog() {
