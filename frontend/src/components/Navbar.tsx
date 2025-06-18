@@ -16,6 +16,15 @@ const Navbar = () => {
             `${linkStyle} ${isActive ? activeStyle : "text-gray-600"}`
           }
         >
+          Home
+        </NavLink>
+        <NavLink
+          to="inventory"
+          end
+          className={({ isActive }) =>
+            `${linkStyle} ${isActive ? activeStyle : "text-gray-600"}`
+          }
+        >
           Inventory
         </NavLink>
         <NavLink
